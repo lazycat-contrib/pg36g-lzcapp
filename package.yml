@@ -1,5 +1,5 @@
 package: community.lazycat.app.pg36g
-version: 2026.10.31+compact.1
+version: 2026.10.31+compact.2
 name: PG 三十六计
 description: A locally packaged static PostgreSQL learning book by Vonng, for non-commercial reading.
 min_os_version: "1.5.0"
