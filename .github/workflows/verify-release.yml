@@ -1,0 +1,68 @@
+name: Verify published reading LPK on GitHub
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Exact reading package release tag
+        required: true
+        default: v2026.10.31+compact.1
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: pg36g-release-verification
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+      RELEASE_TAG: ${{ inputs.tag }}
+    steps:
+      - name: Download exact Release asset on runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          ASSET_NAME="community.lazycat.app.pg36g-${RELEASE_TAG}.lpk"
+          echo "ASSET_NAME=$ASSET_NAME" >> "$GITHUB_ENV"
+          gh release view "$RELEASE_TAG" --json tagName,assets > release-metadata.json
+          gh release download "$RELEASE_TAG" --pattern "$ASSET_NAME" --dir verify-pkg
+      - name: Independently verify SHA256 and book contents
+        shell: python
+        run: |
+          import hashlib, json, os, tarfile
+          from pathlib import Path
+          meta = json.loads(Path('release-metadata.json').read_text())
+          name = os.environ['ASSET_NAME']
+          matches = [a for a in meta['assets'] if a['name'] == name]
+          assert len(matches) == 1
+          asset = matches[0]
+          expected = asset['digest']
+          assert expected.startswith('sha256:')
+          p = Path('verify-pkg') / name
+          h = hashlib.sha256()
+          with p.open('rb') as f:
+              for chunk in iter(lambda: f.read(8 * 1024 * 1024), b''):
+                  h.update(chunk)
+          digest = h.hexdigest()
+          assert 'sha256:' + digest == expected
+          with tarfile.open(p) as package:
+              info = package.extractfile('package.yml').read().decode()
+              assert 'community.lazycat.app.pg36g' in info
+              assert os.environ['RELEASE_TAG'].removeprefix('v') in info
+              assert 'CC-BY-NC-SA-4.0' in info
+              with tarfile.open(fileobj=package.extractfile('content.tar')) as content:
+                  names = content.getnames()
+                  for required in ['site/index.html','site/toc/index.html','site/LICENSE.txt','site/package-notice.html','site/UPSTREAM-COMMIT.txt','site/licenses/OINK/LICENSE']:
+                      assert required in names, required
+                  assert content.extractfile('site/UPSTREAM-COMMIT.txt').read().decode().strip() == '602940b87754a3b16fadf82009b983308669e2c4'
+                  pages = [n for n in names if n.startswith('site/') and n.endswith('.html')]
+                  assert len(pages) >= 500
+                  prints = [n for n in pages if n.startswith('site/_print/')]
+                  licenses = [n for n in names if n.startswith('site/licenses/') and not content.getmember(n).isdir()]
+                  assert len(licenses) >= 39
+          result = {'verified': True, 'tag': os.environ['RELEASE_TAG'], 'asset': name, 'sha256': digest, 'size': p.stat().st_size, 'html_pages': len(pages), 'remaining_print_pages': len(prints), 'third_party_license_files': len(licenses), 'runtime_tested': False}
+          print(json.dumps(result, ensure_ascii=False))
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as f:
+              f.write('Independent cloud Release verification\n\n' + json.dumps(result, ensure_ascii=False, indent=2) + '\n')
