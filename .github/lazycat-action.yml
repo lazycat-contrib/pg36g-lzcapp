@@ -1,0 +1,28 @@
+version: 1
+project:
+  root: .
+  build_config: lzc-build.yml
+  package_file: package.yml
+  output: dist/application.lpk
+  target_arch: amd64
+update:
+  strategy: publish
+  allow_downgrade: false
+  version_source:
+    type: git
+build:
+  toolchains:
+    - go
+  run_buildscript: true
+images: []
+release:
+  use_github_release_notes: false
+  store_changelog_format: plain
+  changelog_template: 'PG 三十六计非商业静态阅读快照 {{.Version}}；保留 Vonng 署名及 CC BY-NC-SA 4.0 许可。'
+stores:
+  official:
+    enabled: false
+  private:
+    enabled: false
+    name: PG 三十六计
+    skip_if_version_exists: true

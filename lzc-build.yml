@@ -1,0 +1,5 @@
+manifest: ./lzc-manifest.yml
+pkgout: ./dist
+icon: ./icon.png
+contentdir: ./content
+buildscript: bash scripts/build-site.sh

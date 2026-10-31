@@ -1,0 +1,6 @@
+dist/
+*.lpk
+content/site/
+.build-pg36g.*/
+.lzc-cli-build*/
+__pycache__/

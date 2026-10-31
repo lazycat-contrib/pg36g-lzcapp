@@ -1,0 +1,18 @@
+name: Build PG36G static reading LPK
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: pg36g-reading-lpk
+  cancel-in-progress: false
+jobs:
+  lazycat:
+    uses: ca-x/lazycat-github-action/.github/workflows/lazycat.yml@v1
+    with:
+      operation: auto
+      config: .github/lazycat-action.yml
+      toolchains: go
+      go-version: "1.27.3"
+      versioned-release-asset: true

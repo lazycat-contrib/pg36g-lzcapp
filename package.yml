@@ -1,0 +1,15 @@
+package: community.lazycat.app.pg36g
+version: 2026.10.31
+name: PG 三十六计
+description: A locally packaged static PostgreSQL learning book by Vonng, for non-commercial reading.
+min_os_version: "1.5.0"
+homepage: https://github.com/Vonng/pg36g
+author: Vonng
+license: CC-BY-NC-SA-4.0
+locales:
+  zh:
+    name: PG 三十六计
+    description: Vonng 编写的 PostgreSQL 与 Pigsty 实战静态书籍，保留署名及同协议，仅供非商业阅读。
+  en:
+    name: PostgreSQL 36 Stratagems
+    description: A locally packaged static PostgreSQL learning book by Vonng, for non-commercial reading.
