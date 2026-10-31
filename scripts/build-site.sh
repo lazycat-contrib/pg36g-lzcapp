@@ -28,4 +28,5 @@ go mod verify
 "$WORK/tools/hugo" --environment production --config "hugo.yaml,$WORK/offline.json" --baseURL / --destination "$ROOT/content/site" --cacheDir "$WORK/hugo-cache" --gc --minify
 cp LICENSE "$ROOT/content/site/LICENSE.txt"
 printf '%s\n' "$SOURCE_SHA" > "$ROOT/content/site/UPSTREAM-COMMIT.txt"
-python3 "$ROOT/scripts/finalize-site.py" "$ROOT/content/site" "$SOURCE_SHA"
+THEME_DIR=$(go list -m -f '{{.Dir}}' github.com/pgsty/oink)
+python3 "$ROOT/scripts/finalize-site.py" "$ROOT/content/site" "$SOURCE_SHA" "$THEME_DIR"
