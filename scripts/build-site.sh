@@ -17,7 +17,7 @@ fi
 test "$(git -C "$WORK/source" rev-parse HEAD)" = "$SOURCE_SHA"
 grep -Eqi 'NonCommercial|BY-NC-SA' "$WORK/source/LICENSE"
 cat > "$WORK/offline.json" <<'JSON'
-{"baseURL":"/","canonifyURLs":false,"relativeURLs":false,"services":{"googleAnalytics":{"ID":""}}}
+{"baseURL":"/","canonifyURLs":false,"relativeURLs":false,"services":{"googleAnalytics":{"ID":""}},"outputs":{"home":["HTML"],"page":["HTML"],"section":["HTML","RSS"]}}
 JSON
 export GOWORK=off HUGO_MODULE_WORKSPACE=off
 unset HUGO_MODULE_REPLACEMENTS
